@@ -1,5 +1,6 @@
 import typer
 from typing import Optional
+from pathlib import Path
 
 
 def main(extension: str,
@@ -12,7 +13,26 @@ def main(extension: str,
         directory (Optional[str], optional): Dossier dans lequel rechercher les fichiers.
         delete (bool, optional): --delete ((True) Supprime les fichiers trouvés) | --no-delete ((False) Ne supprime pas les fichiers trouvés) [default: False]
     """
-    pass
+    
+    if directory:
+        directory = Path(directory) # type: ignore
+    else:
+        directory = Path.cwd() # type: ignore
+    
+    if not directory.exists(): # type: ignore
+        typer.secho(f"Le dossier '{directory}' n'existe pas.", fg=typer.colors.RED)
+        raise typer.Exit()
+    
+    files = directory.rglob(f"*.{extension}") # type: ignore
+    if delete:
+        typer.confirm("Vouvez-vous vraiment supprimer tous les fichiers trouvés ?", abort=True)
+        for file in files:
+            file.unlink()
+            typer.secho(f"Suppression du fichier {file}.", fg=typer.colors.RED)
+    else:
+        typer.secho(f"Fichier trouvés avec l'extension {extension}:", bg=typer.colors.BLUE, fg=typer.colors.BRIGHT_WHITE)
+        for file in files:
+            typer.echo(file)
 
 
 if __name__ == "__main__":
