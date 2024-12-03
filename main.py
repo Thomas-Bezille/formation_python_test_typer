@@ -3,6 +3,9 @@ from typing import Optional
 from pathlib import Path
 
 
+app = typer.Typer()
+
+@app.command("run")
 def main(extension: str,
          directory: Optional[str] = typer.Argument(None, help="Dossier dans lequel chercher"),
          delete: bool = typer.Option(False, help="Supprime les fichiers trouvés")):
@@ -34,6 +37,13 @@ def main(extension: str,
         for file in files:
             typer.echo(file)
 
+@app.command()
+def search(extension: str):
+    main(extension=extension, directory=None, delete=False)
+
+@app.command()
+def delete(extension: str):
+    main(extension=extension, directory=None, delete=True)
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()
